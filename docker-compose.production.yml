@@ -1,0 +1,15 @@
+services:
+  netin-web:
+    container_name: netin-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: https://netin-server.13997906387.xyz
+    restart: unless-stopped
+    networks:
+      - nginxnet
+
+networks:
+  nginxnet:
+    external: true

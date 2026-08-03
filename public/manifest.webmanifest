@@ -1,0 +1,8 @@
+{
+  "name": "Netin",
+  "short_name": "Netin",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#17151f",
+  "theme_color": "#17151f"
+}
