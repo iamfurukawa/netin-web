@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "./api/client";
 import { AuthForm } from "./features/auth/AuthForm";
 import { currentUser, logout, type User } from "./features/auth/auth-api";
+import { DeviceManager } from "./features/devices/DeviceManager";
 
 const authQueryKey = ["auth", "me"] as const;
 
@@ -16,6 +17,7 @@ export function App() {
   const logoutMutation = useMutation({
     mutationFn: logout,
     onSuccess: async () => {
+      queryClient.removeQueries({ queryKey: ["devices"] });
       await queryClient.invalidateQueries({ queryKey: authQueryKey });
     },
   });
@@ -59,6 +61,6 @@ function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () =
       <button className="button--secondary" type="button" onClick={onLogout}>Sair</button>
     </section>
     {logoutError && <p className="notice" role="alert">Não foi possível encerrar a sessão. Tente novamente.</p>}
-    <section className="next-card"><p className="eyebrow">PRÓXIMOS PASSOS</p><h2>Seus dispositivos</h2><p className="muted">O pareamento e o status sincronizado aparecerão aqui assim que a API de dispositivos estiver disponível.</p></section>
+    <DeviceManager />
   </section>;
 }
