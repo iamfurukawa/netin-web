@@ -41,7 +41,7 @@ export function DeviceManager() {
 
   return <section className="devices-card" aria-labelledby="devices-title">
     <div className="section-heading"><div><p className="eyebrow">DISPOSITIVOS</p><h2 id="devices-title">Seus Netins</h2></div></div>
-    <p className="muted">Na placa, abra Ajustes → Conta/dispositivo para gerar um código temporário.</p>
+    <p className="muted">Na placa, abra Ajustes → Dispositivo para gerar um código temporário.</p>
     <form className="pair-form" onSubmit={submit}>
       <label htmlFor="pairing-code">Código de pareamento</label>
       <div className="pair-form__row">
