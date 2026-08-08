@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BrowserRouter, Link, NavLink, Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Link, NavLink, Navigate, Outlet, Route, Routes } from "react-router-dom";
 
 import { ApiError } from "./api/client";
 import { AuthForm } from "./features/auth/AuthForm";
@@ -48,10 +48,10 @@ export function App() {
     </>}
     {user && <Routes>
       <Route element={<Dashboard user={user} onLogout={() => logoutMutation.mutate()} logoutError={logoutMutation.error} />}>
-        <Route index element={<HomePage />} />
+        <Route index element={<SocialPanel />} />
         <Route path="devices" element={<DeviceManager />} />
         <Route path="groups" element={<GroupsPanel user={user} />} />
-        <Route path="interactions" element={<SocialPanel />} />
+        <Route path="interactions" element={<Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>}
@@ -67,20 +67,7 @@ function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () =
       <NavLink end className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/">Início</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/devices">Dispositivos</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/groups">Grupos</NavLink>
-      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/interactions">Interações</NavLink>
     </nav>
     <Outlet />
-  </section>;
-}
-
-function HomePage() {
-  const navigate = useNavigate();
-  return <section className="home-card" aria-label="Resumo do painel">
-    <p className="eyebrow">PAINEL</p><h2>Seu Netin, do seu jeito.</h2>
-    <p className="muted">Gerencie seus dispositivos, grupos e preferências sociais em áreas separadas.</p>
-    <div className="home-actions">
-      <button className="button--primary" type="button" onClick={() => navigate("/devices")}>Meus dispositivos</button>
-      <button className="button--secondary" type="button" onClick={() => navigate("/groups")}>Explorar grupos</button>
-    </div>
   </section>;
 }
