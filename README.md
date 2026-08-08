@@ -19,6 +19,13 @@ Por padrão, o desenvolvimento usa a API em `http://localhost:3000`. Para aponta
 a PWA a outro ambiente, defina `VITE_API_BASE_URL` antes de executar `npm run dev`
 ou `npm run build`.
 
+## Rotas
+
+O painel usa `react-router-dom`. As telas autenticadas são `/`, `/devices`,
+`/groups` e `/interactions`. O Nginx interno usa fallback para `index.html`,
+portanto recarregar ou abrir diretamente qualquer uma dessas URLs mantém a PWA
+funcionando.
+
 ## Instalação e uso offline
 
 Em produção, navegadores compatíveis oferecem **Instalar aplicativo** no menu do

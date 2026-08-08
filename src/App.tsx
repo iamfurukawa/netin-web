@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BrowserRouter, Link, NavLink, Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
 
 import { ApiError } from "./api/client";
 import { AuthForm } from "./features/auth/AuthForm";
@@ -29,42 +30,57 @@ export function App() {
   const user = session.data?.user ?? null;
   const connectionLabel = { checking: "Verificando serviço", online: "Serviço conectado", offline: "Serviço indisponível" }[apiState];
 
-  return (
-    <main className="page">
-      <header className="header">
-        <a className="brand" href="/" aria-label="Netin">NETIN</a>
-        <span className={`connection connection--${apiState}`}><span aria-hidden="true" className="connection__dot" />{connectionLabel}</span>
-      </header>
+  return <BrowserRouter><main className="page">
+    <header className="header">
+      <Link className="brand" to="/" aria-label="Netin">NETIN</Link>
+      <span className={`connection connection--${apiState}`}><span aria-hidden="true" className="connection__dot" />{connectionLabel}</span>
+    </header>
 
-      {session.isPending && <section className="loading-card"><p className="eyebrow">NETIN</p><h1>Preparando seu painel...</h1></section>}
-
-      {!session.isPending && !user && <>
-        <section className="hero" aria-labelledby="welcome-title">
-          <p className="eyebrow">SEU PAINEL PESSOAL</p>
-          <h1 id="welcome-title">Seu status, onde você estiver.</h1>
-          <p className="lead">Entre para conectar seu Netin à conta e manter status e dispositivos sincronizados.</p>
-        </section>
-        {apiState === "offline" && <p className="notice" role="status">Não foi possível alcançar a API. Verifique sua conexão e tente novamente.</p>}
-        <AuthForm onAuthenticated={(authenticatedUser) => queryClient.setQueryData(authQueryKey, { user: authenticatedUser })} />
-      </>}
-
-      {user && <Dashboard user={user} onLogout={() => logoutMutation.mutate()} logoutError={logoutMutation.error} />}
-    </main>
-  );
+    {session.isPending && <section className="loading-card"><p className="eyebrow">NETIN</p><h1>Preparando seu painel...</h1></section>}
+    {!session.isPending && !user && <>
+      <section className="hero" aria-labelledby="welcome-title">
+        <p className="eyebrow">SEU PAINEL PESSOAL</p>
+        <h1 id="welcome-title">Seu status, onde você estiver.</h1>
+        <p className="lead">Entre para conectar seu Netin à conta e manter status e dispositivos sincronizados.</p>
+      </section>
+      {apiState === "offline" && <p className="notice" role="status">Não foi possível alcançar a API. Verifique sua conexão e tente novamente.</p>}
+      <AuthForm onAuthenticated={(authenticatedUser) => queryClient.setQueryData(authQueryKey, { user: authenticatedUser })} />
+    </>}
+    {user && <Routes>
+      <Route element={<Dashboard user={user} onLogout={() => logoutMutation.mutate()} logoutError={logoutMutation.error} />}>
+        <Route index element={<HomePage />} />
+        <Route path="devices" element={<DeviceManager />} />
+        <Route path="groups" element={<GroupsPanel user={user} />} />
+        <Route path="interactions" element={<SocialPanel />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Route>
+    </Routes>}
+  </main></BrowserRouter>;
 }
 
 function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () => void; logoutError: Error | null }) {
   return <section className="dashboard" aria-labelledby="dashboard-title">
-    <p className="eyebrow">SUA CONTA</p>
-    <h1 id="dashboard-title">Olá, {user.displayName}.</h1>
-    <section className="profile-card">
-      <span className="profile-swatch" style={{ backgroundColor: user.color ?? "#7560f5" }} aria-hidden="true" />
-      <div><h2>{user.displayName}</h2><p className="muted">{user.email}</p></div>
-      <button className="button--secondary" type="button" onClick={onLogout}>Sair</button>
-    </section>
+    <div className="dashboard-heading"><div><p className="eyebrow">SUA CONTA</p><h1 id="dashboard-title">Olá, {user.displayName}.</h1></div><button className="button--secondary" type="button" onClick={onLogout}>Sair</button></div>
+    <section className="profile-card"><span className="profile-swatch" style={{ backgroundColor: user.color ?? "#7560f5" }} aria-hidden="true" /><div><h2>{user.displayName}</h2><p className="muted">{user.email}</p></div></section>
     {logoutError && <p className="notice" role="alert">Não foi possível encerrar a sessão. Tente novamente.</p>}
-    <DeviceManager />
-    <GroupsPanel user={user} />
-    <SocialPanel />
+    <nav className="dashboard-nav" aria-label="Navegação do painel">
+      <NavLink end className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/">Início</NavLink>
+      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/devices">Dispositivos</NavLink>
+      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/groups">Grupos</NavLink>
+      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/interactions">Interações</NavLink>
+    </nav>
+    <Outlet />
+  </section>;
+}
+
+function HomePage() {
+  const navigate = useNavigate();
+  return <section className="home-card" aria-label="Resumo do painel">
+    <p className="eyebrow">PAINEL</p><h2>Seu Netin, do seu jeito.</h2>
+    <p className="muted">Gerencie seus dispositivos, grupos e preferências sociais em áreas separadas.</p>
+    <div className="home-actions">
+      <button className="button--primary" type="button" onClick={() => navigate("/devices")}>Meus dispositivos</button>
+      <button className="button--secondary" type="button" onClick={() => navigate("/groups")}>Explorar grupos</button>
+    </div>
   </section>;
 }
