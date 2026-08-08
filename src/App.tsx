@@ -5,6 +5,7 @@ import { AuthForm } from "./features/auth/AuthForm";
 import { currentUser, logout, type User } from "./features/auth/auth-api";
 import { DeviceManager } from "./features/devices/DeviceManager";
 import { GroupsPanel } from "./features/groups/GroupsPanel";
+import { SocialPanel } from "./features/social/SocialPanel";
 
 const authQueryKey = ["auth", "me"] as const;
 
@@ -64,5 +65,6 @@ function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () =
     {logoutError && <p className="notice" role="alert">Não foi possível encerrar a sessão. Tente novamente.</p>}
     <DeviceManager />
     <GroupsPanel user={user} />
+    <SocialPanel />
   </section>;
 }
