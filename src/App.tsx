@@ -4,6 +4,7 @@ import { ApiError } from "./api/client";
 import { AuthForm } from "./features/auth/AuthForm";
 import { currentUser, logout, type User } from "./features/auth/auth-api";
 import { DeviceManager } from "./features/devices/DeviceManager";
+import { GroupsPanel } from "./features/groups/GroupsPanel";
 
 const authQueryKey = ["auth", "me"] as const;
 
@@ -40,7 +41,7 @@ export function App() {
         <section className="hero" aria-labelledby="welcome-title">
           <p className="eyebrow">SEU PAINEL PESSOAL</p>
           <h1 id="welcome-title">Seu status, onde você estiver.</h1>
-          <p className="lead">Entre para conectar seu Netin à conta e manter status, amigos e mensagens sincronizados.</p>
+          <p className="lead">Entre para conectar seu Netin à conta e manter status e dispositivos sincronizados.</p>
         </section>
         {apiState === "offline" && <p className="notice" role="status">Não foi possível alcançar a API. Verifique sua conexão e tente novamente.</p>}
         <AuthForm onAuthenticated={(authenticatedUser) => queryClient.setQueryData(authQueryKey, { user: authenticatedUser })} />
@@ -62,5 +63,6 @@ function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () =
     </section>
     {logoutError && <p className="notice" role="alert">Não foi possível encerrar a sessão. Tente novamente.</p>}
     <DeviceManager />
+    <GroupsPanel user={user} />
   </section>;
 }

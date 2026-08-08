@@ -5,6 +5,7 @@ export type User = {
   email: string;
   displayName: string;
   color: string | null;
+  isAdmin: boolean;
 };
 
 type UserResponse = { user: User };
