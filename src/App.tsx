@@ -7,6 +7,7 @@ import { currentUser, logout, type User } from "./features/auth/auth-api";
 import { DeviceManager } from "./features/devices/DeviceManager";
 import { GroupsPanel } from "./features/groups/GroupsPanel";
 import { SocialPanel } from "./features/social/SocialPanel";
+import { StatusPanel } from "./features/status/StatusPanel";
 
 const authQueryKey = ["auth", "me"] as const;
 
@@ -49,6 +50,7 @@ export function App() {
     {user && <Routes>
       <Route element={<Dashboard user={user} onLogout={() => logoutMutation.mutate()} logoutError={logoutMutation.error} />}>
         <Route index element={<SocialPanel />} />
+        <Route path="status" element={<StatusPanel />} />
         <Route path="devices" element={<DeviceManager />} />
         <Route path="groups" element={<GroupsPanel user={user} />} />
         <Route path="interactions" element={<Navigate to="/" replace />} />
@@ -65,6 +67,7 @@ function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () =
     {logoutError && <p className="notice" role="alert">Não foi possível encerrar a sessão. Tente novamente.</p>}
     <nav className="dashboard-nav" aria-label="Navegação do painel">
       <NavLink end className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/">Início</NavLink>
+      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/status">Status</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/devices">Dispositivos</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/groups">Grupos</NavLink>
     </nav>

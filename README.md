@@ -22,7 +22,7 @@ ou `npm run build`.
 ## Rotas
 
 O painel usa `react-router-dom`. As telas autenticadas são `/` (interações),
-`/devices` e `/groups`; `/interactions` redireciona para o início. O Nginx interno usa fallback para `index.html`,
+`/status`, `/devices` e `/groups`; `/interactions` redireciona para o início. O Nginx interno usa fallback para `index.html`,
 portanto recarregar ou abrir diretamente qualquer uma dessas URLs mantém a PWA
 funcionando.
 
