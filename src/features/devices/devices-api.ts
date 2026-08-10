@@ -4,6 +4,7 @@ export type Device = {
   id: string;
   hardwareTarget: string;
   pairedAt: string | null;
+  lastSeenAt: string | null;
   createdAt: string;
 };
 

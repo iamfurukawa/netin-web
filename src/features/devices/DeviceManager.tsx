@@ -20,7 +20,7 @@ function deviceName(device: Device) {
 export function DeviceManager() {
   const queryClient = useQueryClient();
   const [code, setCode] = useState("");
-  const devices = useQuery({ queryKey: devicesQueryKey, queryFn: listDevices });
+  const devices = useQuery({ queryKey: devicesQueryKey, queryFn: listDevices, refetchInterval: 30_000 });
   const pairMutation = useMutation({
     mutationFn: () => pairDevice(code),
     onSuccess: async () => {
@@ -55,10 +55,19 @@ export function DeviceManager() {
     {devices.data?.devices.length === 0 && <p className="empty-state">Nenhum Netin pareado ainda.</p>}
     <ul className="device-list">
       {devices.data?.devices.map((device) => <li key={device.id} className="device-item">
-        <span className="device-indicator" aria-hidden="true" />
-        <div><strong>{deviceName(device)}</strong><span>{device.id.slice(0, 8)}</span></div>
+        <span className={`device-indicator device-indicator--${deviceState(device)}`} aria-hidden="true" />
+        <div><strong>{deviceName(device)}</strong><span>{device.id.slice(0, 8)} · {deviceStateLabel(device)}</span></div>
         <button className="button--danger" type="button" disabled={removeMutation.isPending} onClick={() => removeMutation.mutate(device.id)}>Remover</button>
       </li>)}
     </ul>
   </section>;
+}
+
+function deviceState(device: Device) {
+  if (!device.lastSeenAt) return "pending";
+  return Date.now() - new Date(device.lastSeenAt).getTime() < 90_000 ? "online" : "offline";
+}
+
+function deviceStateLabel(device: Device) {
+  return { online: "Conectado", offline: "Desconectado", pending: "Aguardando conexão" }[deviceState(device)];
 }

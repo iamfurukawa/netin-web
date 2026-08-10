@@ -33,3 +33,11 @@ export function register(displayName: string, email: string, password: string, c
 export function logout() {
   return apiRequest<void>("/auth/logout", { method: "POST" });
 }
+
+export function updateProfile(input: Pick<User, "displayName" | "color">) {
+  return apiRequest<UserResponse>("/auth/profile", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}

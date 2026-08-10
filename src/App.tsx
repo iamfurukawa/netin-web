@@ -3,7 +3,7 @@ import { BrowserRouter, Link, NavLink, Navigate, Outlet, Route, Routes } from "r
 
 import { ApiError } from "./api/client";
 import { AuthForm } from "./features/auth/AuthForm";
-import { currentUser, logout, type User } from "./features/auth/auth-api";
+import { currentUser, logout, updateProfile, type User } from "./features/auth/auth-api";
 import { DeviceManager } from "./features/devices/DeviceManager";
 import { GroupsPanel } from "./features/groups/GroupsPanel";
 import { SocialPanel } from "./features/social/SocialPanel";
@@ -61,9 +61,24 @@ export function App() {
 }
 
 function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () => void; logoutError: Error | null }) {
+  const queryClient = useQueryClient();
+  const profileMutation = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: ({ user: updated }) => queryClient.setQueryData(authQueryKey, { user: updated }),
+  });
   return <section className="dashboard" aria-labelledby="dashboard-title">
     <div className="dashboard-heading"><div><p className="eyebrow">SUA CONTA</p><h1 id="dashboard-title">Olá, {user.displayName}.</h1></div><button className="button--secondary" type="button" onClick={onLogout}>Sair</button></div>
     <section className="profile-card"><span className="profile-swatch" style={{ backgroundColor: user.color ?? "#7560f5" }} aria-hidden="true" /><div><h2>{user.displayName}</h2><p className="muted">{user.email}</p></div></section>
+    <form className="profile-editor" onSubmit={(event) => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      profileMutation.mutate({ displayName: String(form.get("displayName") ?? ""), color: String(form.get("color") ?? "") || null });
+    }}>
+      <label>Nome<input name="displayName" defaultValue={user.displayName} minLength={1} maxLength={24} required /></label>
+      <label>Cor<input name="color" type="color" defaultValue={user.color ?? "#7560f5"} /></label>
+      <button className="button--secondary" type="submit" disabled={profileMutation.isPending}>{profileMutation.isPending ? "Salvando..." : "Salvar perfil"}</button>
+      {profileMutation.error && <p className="form-error" role="alert">Não foi possível salvar o perfil.</p>}
+    </form>
     {logoutError && <p className="notice" role="alert">Não foi possível encerrar a sessão. Tente novamente.</p>}
     <nav className="dashboard-nav" aria-label="Navegação do painel">
       <NavLink end className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/">Início</NavLink>
