@@ -3,7 +3,8 @@ import { apiRequest } from "../../api/client";
 export type SocialPreferences = { muted: boolean };
 export type InteractionInput =
   | { type: "reaction"; reaction: "👍" | "❤️" | "😂" | "🎉" | "👋" | "👏" | "🔥" | "✨" }
-  | { type: "message"; text: string };
+  | { type: "message"; text: string }
+  | { type: "poke" };
 
 export function getSocialPreferences() {
   return apiRequest<SocialPreferences>("/social-preferences");

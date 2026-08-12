@@ -48,6 +48,7 @@ export function SocialPanel() {
         <select id="interaction-group" value={selectedGroupId} onChange={(event) => setSelectedGroupId(event.target.value)}>{joinedGroups.map((group: Group) => <option key={group.id} value={group.id}>{group.name}</option>)}</select>
       </label>
       <div className="reaction-list" aria-label="Escolher reação">{reactions.map((reaction) => <button key={reaction} className="reaction-button" type="button" disabled={interaction.isPending} onClick={() => send({ type: "reaction", reaction })}>{reaction}</button>)}</div>
+      <button className="button--secondary" type="button" disabled={interaction.isPending} onClick={() => send({ type: "poke" })}>{interaction.isPending ? "Enviando..." : "Cutucar grupo"}</button>
       <form className="message-form" onSubmit={submitMessage}>
         <label className="social-field" htmlFor="group-message">Mensagem curta
           <textarea id="group-message" value={message} onChange={(event) => setMessage(event.target.value)} maxLength={160} placeholder="Escreva uma mensagem" required />
