@@ -42,6 +42,10 @@ export function listGroupMembers(groupId: string) {
   return apiRequest<{ members: GroupMember[] }>(`/admin/groups/${groupId}/members`);
 }
 
+export function listInteractionMembers(groupId: string) {
+  return apiRequest<{ members: GroupMember[] }>(`/groups/${groupId}/members`);
+}
+
 export function removeGroupMember(groupId: string, userId: string) {
   return apiRequest<void>(`/admin/groups/${groupId}/members/${userId}`, { method: "DELETE" });
 }

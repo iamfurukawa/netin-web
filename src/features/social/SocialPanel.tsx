@@ -2,23 +2,31 @@ import { type FormEvent, useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ApiError } from "../../api/client";
-import { listGroups, type Group } from "../groups/groups-api";
+import { listGroups, listInteractionMembers, type Group } from "../groups/groups-api";
 import { getSocialPreferences, sendGroupInteraction, setSocialPreferences, type InteractionInput } from "./social-api";
 
 const reactions = ["👍", "❤️", "😂", "🎉", "👋", "👏", "🔥", "✨"] as const;
 
 function messageFor(error: unknown) {
   if (error instanceof ApiError && error.code === "group_membership_required") return "Você precisa estar inscrito neste grupo para enviar uma interação.";
+  if (error instanceof ApiError && error.code === "invalid_poke_target") return "Essa pessoa não está mais inscrita neste grupo.";
   return "Não foi possível concluir esta ação. Tente novamente.";
 }
 
-export function SocialPanel() {
+export function SocialPanel({ userId }: { userId: string }) {
   const queryClient = useQueryClient();
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [message, setMessage] = useState("");
   const groups = useQuery({ queryKey: ["groups"], queryFn: listGroups });
   const preferences = useQuery({ queryKey: ["social-preferences"], queryFn: getSocialPreferences });
   const joinedGroups = groups.data?.groups.filter((group) => group.joined) ?? [];
+  const members = useQuery({
+    queryKey: ["interaction-members", selectedGroupId],
+    queryFn: () => listInteractionMembers(selectedGroupId),
+    enabled: Boolean(selectedGroupId),
+  });
+  const pokeTargets = members.data?.members.filter((member) => member.id !== userId) ?? [];
+  const [selectedPokeTargetId, setSelectedPokeTargetId] = useState("");
   const preferencesMutation = useMutation({
     mutationFn: setSocialPreferences,
     onSuccess: (data) => queryClient.setQueryData(["social-preferences"], data),
@@ -28,6 +36,10 @@ export function SocialPanel() {
   useEffect(() => {
     if (!selectedGroupId || !joinedGroups.some((group) => group.id === selectedGroupId)) setSelectedGroupId(joinedGroups[0]?.id ?? "");
   }, [joinedGroups, selectedGroupId]);
+
+  useEffect(() => {
+    if (!selectedPokeTargetId || !pokeTargets.some((member) => member.id === selectedPokeTargetId)) setSelectedPokeTargetId(pokeTargets[0]?.id ?? "");
+  }, [pokeTargets, selectedPokeTargetId]);
 
   function send(input: InteractionInput) {
     if (selectedGroupId) interaction.mutate({ groupId: selectedGroupId, input });
@@ -49,6 +61,16 @@ export function SocialPanel() {
       </label>
       <div className="reaction-list" aria-label="Escolher reação">{reactions.map((reaction) => <button key={reaction} className="reaction-button" type="button" disabled={interaction.isPending} onClick={() => send({ type: "reaction", reaction })}>{reaction}</button>)}</div>
       <button className="button--secondary" type="button" disabled={interaction.isPending} onClick={() => send({ type: "poke" })}>{interaction.isPending ? "Enviando..." : "Cutucar grupo"}</button>
+      <div className="poke-target">
+        <label className="social-field" htmlFor="poke-target">Cutucar uma pessoa
+          <select id="poke-target" value={selectedPokeTargetId} onChange={(event) => setSelectedPokeTargetId(event.target.value)} disabled={members.isPending || pokeTargets.length === 0}>
+            {pokeTargets.length === 0 ? <option value="">Nenhuma outra pessoa no grupo</option> : pokeTargets.map((member) => <option key={member.id} value={member.id}>{member.displayName}</option>)}
+          </select>
+        </label>
+        <button className="button--secondary" type="button" disabled={interaction.isPending || !selectedPokeTargetId} onClick={() => send({ type: "poke", targetUserId: selectedPokeTargetId })}>
+          {interaction.isPending ? "Enviando..." : "Cutucar pessoa"}
+        </button>
+      </div>
       <form className="message-form" onSubmit={submitMessage}>
         <label className="social-field" htmlFor="group-message">Mensagem curta
           <textarea id="group-message" value={message} onChange={(event) => setMessage(event.target.value)} maxLength={160} placeholder="Escreva uma mensagem" required />

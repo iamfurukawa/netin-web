@@ -49,7 +49,7 @@ export function App() {
     </>}
     {user && <Routes>
       <Route element={<Dashboard user={user} onLogout={() => logoutMutation.mutate()} logoutError={logoutMutation.error} />}>
-        <Route index element={<SocialPanel />} />
+        <Route index element={<SocialPanel userId={user.id} />} />
         <Route path="status" element={<StatusPanel />} />
         <Route path="devices" element={<DeviceManager />} />
         <Route path="groups" element={<GroupsPanel user={user} />} />

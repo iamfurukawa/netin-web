@@ -4,7 +4,7 @@ export type SocialPreferences = { muted: boolean };
 export type InteractionInput =
   | { type: "reaction"; reaction: "👍" | "❤️" | "😂" | "🎉" | "👋" | "👏" | "🔥" | "✨" }
   | { type: "message"; text: string }
-  | { type: "poke" };
+  | { type: "poke"; targetUserId?: string };
 
 export function getSocialPreferences() {
   return apiRequest<SocialPreferences>("/social-preferences");
