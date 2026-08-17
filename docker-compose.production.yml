@@ -6,6 +6,7 @@ services:
       dockerfile: Dockerfile
       args:
         VITE_API_BASE_URL: https://netin-server.13997906387.xyz
+        VITE_GIPHY_API_KEY: ${VITE_GIPHY_API_KEY}
     restart: unless-stopped
     networks:
       - nginxnet
