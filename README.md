@@ -41,4 +41,4 @@ Nginx na rede Docker externa `nginxnet`; o Nginx central o expõe em
 `netin.13997906387.xyz`. O build aponta para a API em
 `https://netin-server.13997906387.xyz`.
 
-Pushes na `main` executam o build no GitHub Actions e, após sucesso, chamam `scripts/deploy-production.sh` no runner ARM64 da Raspberry. Não há arquivo de ambiente local necessário para esse deploy: a URL pública da API é definida no `docker-compose.production.yml` como argumento de build.
+Pushes na `main` executam o build no GitHub Actions e, após sucesso, chamam `scripts/deploy-production.sh` no runner ARM64 da Raspberry. Antes do primeiro deploy, crie `/srv/netin-web/.env.production` com `VITE_GIPHY_API_KEY` quando a busca do GIPHY estiver habilitada. A URL pública da API é definida no `docker-compose.production.yml` como argumento de build.

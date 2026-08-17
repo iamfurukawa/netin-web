@@ -15,6 +15,11 @@ fi
 
 git -C "$deploy_dir" pull --ff-only origin main
 cd "$deploy_dir"
-docker compose -f docker-compose.production.yml up -d --build --remove-orphans
+environment_file="$deploy_dir/.env.production"
+if [[ ! -f "$environment_file" ]]; then
+  echo "Arquivo de ambiente ausente: $environment_file" >&2
+  exit 1
+fi
+docker compose --env-file "$environment_file" -f docker-compose.production.yml up -d --build --remove-orphans
 
 echo "Deploy da PWA concluido."
