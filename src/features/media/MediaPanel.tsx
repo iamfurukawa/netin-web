@@ -10,7 +10,7 @@ const maxPhotoBytes = 10 * 1024 * 1024;
 
 function errorMessage(error: unknown) {
   if (error instanceof ApiError && error.code === "media_too_large") return "A imagem ultrapassa o limite permitido.";
-  if (error instanceof ApiError && error.code === "unsupported_media_type") return "Escolha JPEG, PNG, WebP ou GIF.";
+  if (error instanceof ApiError && error.code === "unsupported_media_type") return "Escolha JPEG, PNG, WebP, GIF, MP4, MOV ou WebM.";
   if (error instanceof ApiError && error.code === "invalid_media") return "Não foi possível processar essa imagem.";
   if (error instanceof ApiError && error.code === "invalid_giphy_gif") return "Não foi possível importar esse GIF do GIPHY.";
   if (error instanceof ApiError && error.code === "group_membership_required") return "Você não está inscrito nesse grupo.";
@@ -44,7 +44,7 @@ export function MediaPanel({ userId }: { userId: string }) {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedGroupId || upload.isPending || giphyImport.isPending || delivery.isPending) return;
-    if (source === "file" && (!file || file.size > maxPhotoBytes || !["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type))) return;
+    if (source === "file" && (!file || file.size > maxPhotoBytes || !["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/quicktime", "video/webm"].includes(file.type))) return;
     if (source === "giphy" && !selectedGiphy) return;
     try {
       const { asset } = source === "file" ? await upload.mutateAsync(file!) : await giphyImport.mutateAsync(selectedGiphy!.id);
@@ -59,24 +59,24 @@ export function MediaPanel({ userId }: { userId: string }) {
     }
   }
 
-  const validationError = source === "file" && file && (file.size > maxPhotoBytes || !["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type));
+  const validationError = source === "file" && file && (file.size > maxPhotoBytes || !["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/quicktime", "video/webm"].includes(file.type));
   const error = upload.error ?? giphyImport.error ?? delivery.error;
   const pending = upload.isPending || giphyImport.isPending || delivery.isPending;
 
   return <section className="media-card" aria-labelledby="media-title">
     <div className="section-heading"><div><p className="eyebrow">MÍDIA</p><h2 id="media-title">Enviar mídia</h2></div></div>
-    <p className="muted">A foto ou GIF é ajustado para a tela do Netin e enviado automaticamente aos dispositivos elegíveis.</p>
+    <p className="muted">A foto, GIF ou vídeo curto sem áudio (até 8 segundos) é ajustado para a tela do Netin e enviado automaticamente aos dispositivos elegíveis.</p>
     {joinedGroups.length === 0 ? <p className="empty-state">Inscreva-se em um grupo para enviar mídia.</p> : <form className="media-form" onSubmit={submit}>
       <div className="media-source" role="group" aria-label="Origem da mídia">
         <button className={source === "file" ? "button--secondary media-source__active" : "button--secondary"} type="button" onClick={() => setSource("file")}>Arquivo</button>
         {giphyAvailable() && <button className={source === "giphy" ? "button--secondary media-source__active" : "button--secondary"} type="button" onClick={() => setSource("giphy")}>Buscar GIF</button>}
       </div>
       {source === "file" && <>
-        <label className="social-field" htmlFor="media-file">Foto ou GIF
-          <input id="media-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => setFile(event.target.files?.[0] ?? null)} required />
+        <label className="social-field" htmlFor="media-file">Foto, GIF ou vídeo curto
+          <input id="media-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/quicktime,video/webm" onChange={(event) => setFile(event.target.files?.[0] ?? null)} required />
         </label>
         {file && <p className="muted">{file.name} · {(file.size / 1024 / 1024).toFixed(1)} MB</p>}
-        {validationError && <p className="form-error" role="alert">Escolha JPEG, PNG, WebP ou GIF de até 10 MB.</p>}
+        {validationError && <p className="form-error" role="alert">Escolha JPEG, PNG, WebP, GIF, MP4, MOV ou WebM de até 10 MB.</p>}
       </>}
       {source === "giphy" && <>
         <div className="media-search"><input value={giphyQuery} maxLength={50} placeholder="Busque um GIF" onChange={(event) => setGiphyQuery(event.target.value)} /><button className="button--secondary" type="button" disabled={!giphyQuery.trim() || giphySearch.isPending} onClick={() => giphySearch.mutate(giphyQuery.trim())}>{giphySearch.isPending ? "Buscando..." : "Buscar"}</button></div>
