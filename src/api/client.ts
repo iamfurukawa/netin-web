@@ -1,5 +1,9 @@
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000").replace(/\/$/, "");
 
+export function apiUrl(path: string) {
+  return `${apiBaseUrl}${path}`;
+}
+
 export class ApiError extends Error {
   constructor(public readonly status: number, public readonly code: string | null = null) {
     super(code ?? `api_error_${status}`);
@@ -7,7 +11,7 @@ export class ApiError extends Error {
 }
 
 export async function apiRequest<T>(path: string, init: RequestInit = {}) {
-  const response = await fetch(`${apiBaseUrl}${path}`, {
+  const response = await fetch(apiUrl(path), {
     ...init,
     credentials: "include",
     headers: { Accept: "application/json", ...init.headers },

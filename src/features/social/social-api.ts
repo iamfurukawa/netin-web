@@ -6,7 +6,7 @@ export type InteractionInput =
   | { type: "message"; text: string }
   | { type: "poke"; targetUserId?: string };
 
-export type Reaction = { id: string; name: string; emoji: string; displayOrder: number; isActive: boolean };
+export type Reaction = { id: string; name: string; displayOrder: number; isActive: boolean; assetKind: "image/jpeg" | "image/gif" | null; assetPath: string };
 
 export function getSocialPreferences() {
   return apiRequest<SocialPreferences>("/social-preferences");
@@ -26,16 +26,24 @@ export function listAdminReactions() {
   return apiRequest<{ reactions: Reaction[] }>("/admin/reactions");
 }
 
-export function createReaction(input: Omit<Reaction, "id">) {
-  return apiRequest<{ reaction: Reaction }>("/admin/reactions", {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
-  });
+export function createReaction(input: { name: string; displayOrder: number }, asset: File) {
+  const form = new FormData();
+  form.set("name", input.name);
+  form.set("displayOrder", String(input.displayOrder));
+  form.set("file", asset);
+  return apiRequest<{ reaction: Reaction }>("/admin/reactions", { method: "POST", body: form });
 }
 
-export function updateReaction(id: string, input: Partial<Omit<Reaction, "id">>) {
+export function updateReaction(id: string, input: Partial<Pick<Reaction, "name" | "displayOrder" | "isActive">>) {
   return apiRequest<{ reaction: Reaction }>(`/admin/reactions/${id}`, {
     method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
   });
+}
+
+export function updateReactionAsset(id: string, asset: File) {
+  const form = new FormData();
+  form.set("file", asset);
+  return apiRequest<{ reaction: Reaction }>(`/admin/reactions/${id}/asset`, { method: "PUT", body: form });
 }
 
 export function sendGroupInteraction(groupId: string, interaction: InteractionInput) {
