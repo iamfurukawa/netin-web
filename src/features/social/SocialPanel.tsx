@@ -3,9 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ApiError } from "../../api/client";
 import { listGroups, listInteractionMembers, type Group } from "../groups/groups-api";
-import { getSocialPreferences, sendGroupInteraction, setSocialPreferences, type InteractionInput } from "./social-api";
-
-const reactions = ["👍", "❤️", "😂", "🎉", "👋", "👏", "🔥", "✨"] as const;
+import { getSocialPreferences, listReactions, sendGroupInteraction, setSocialPreferences, type InteractionInput } from "./social-api";
 
 function messageFor(error: unknown) {
   if (error instanceof ApiError && error.code === "group_membership_required") return "Você precisa estar inscrito neste grupo para enviar uma interação.";
@@ -19,6 +17,7 @@ export function SocialPanel({ userId }: { userId: string }) {
   const [message, setMessage] = useState("");
   const groups = useQuery({ queryKey: ["groups"], queryFn: listGroups });
   const preferences = useQuery({ queryKey: ["social-preferences"], queryFn: getSocialPreferences });
+  const reactions = useQuery({ queryKey: ["reactions"], queryFn: listReactions });
   const joinedGroups = groups.data?.groups.filter((group) => group.joined) ?? [];
   const members = useQuery({
     queryKey: ["interaction-members", selectedGroupId],
@@ -59,7 +58,7 @@ export function SocialPanel({ userId }: { userId: string }) {
       <label className="social-field" htmlFor="interaction-group">Grupo
         <select id="interaction-group" value={selectedGroupId} onChange={(event) => setSelectedGroupId(event.target.value)}>{joinedGroups.map((group: Group) => <option key={group.id} value={group.id}>{group.name}</option>)}</select>
       </label>
-      <div className="reaction-list" aria-label="Escolher reação">{reactions.map((reaction) => <button key={reaction} className="reaction-button" type="button" disabled={interaction.isPending} onClick={() => send({ type: "reaction", reaction })}>{reaction}</button>)}</div>
+      <div className="reaction-list" aria-label="Escolher reação">{reactions.data?.reactions.map((reaction) => <button key={reaction.id} className="reaction-button" type="button" title={reaction.name} aria-label={reaction.name} disabled={interaction.isPending} onClick={() => send({ type: "reaction", reactionId: reaction.id })}>{reaction.emoji}</button>)}</div>
       <button className="button--secondary" type="button" disabled={interaction.isPending} onClick={() => send({ type: "poke" })}>{interaction.isPending ? "Enviando..." : "Cutucar grupo"}</button>
       <div className="poke-target">
         <label className="social-field" htmlFor="poke-target">Cutucar uma pessoa

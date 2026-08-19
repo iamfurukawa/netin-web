@@ -9,6 +9,7 @@ import { GroupsPanel } from "./features/groups/GroupsPanel";
 import { SocialPanel } from "./features/social/SocialPanel";
 import { MediaPanel } from "./features/media/MediaPanel";
 import { StatusPanel } from "./features/status/StatusPanel";
+import { ReactionManager } from "./features/reactions/ReactionManager";
 
 const authQueryKey = ["auth", "me"] as const;
 
@@ -55,6 +56,7 @@ export function App() {
         <Route path="status" element={<StatusPanel />} />
         <Route path="devices" element={<DeviceManager />} />
         <Route path="groups" element={<GroupsPanel user={user} />} />
+        {user.isAdmin && <Route path="reactions" element={<ReactionManager />} />}
         <Route path="interactions" element={<Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
@@ -88,6 +90,7 @@ function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () =
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/status">Status</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/devices">Dispositivos</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/groups">Grupos</NavLink>
+      {user.isAdmin && <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/reactions">Reações</NavLink>}
     </nav>
     <Outlet />
   </section>;

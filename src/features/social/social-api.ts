@@ -2,9 +2,11 @@ import { apiRequest } from "../../api/client";
 
 export type SocialPreferences = { muted: boolean };
 export type InteractionInput =
-  | { type: "reaction"; reaction: "👍" | "❤️" | "😂" | "🎉" | "👋" | "👏" | "🔥" | "✨" }
+  | { type: "reaction"; reactionId: string }
   | { type: "message"; text: string }
   | { type: "poke"; targetUserId?: string };
+
+export type Reaction = { id: string; name: string; emoji: string; displayOrder: number; isActive: boolean };
 
 export function getSocialPreferences() {
   return apiRequest<SocialPreferences>("/social-preferences");
@@ -13,6 +15,26 @@ export function getSocialPreferences() {
 export function setSocialPreferences(muted: boolean) {
   return apiRequest<SocialPreferences>("/social-preferences", {
     method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ muted }),
+  });
+}
+
+export function listReactions() {
+  return apiRequest<{ reactions: Reaction[] }>("/reactions");
+}
+
+export function listAdminReactions() {
+  return apiRequest<{ reactions: Reaction[] }>("/admin/reactions");
+}
+
+export function createReaction(input: Omit<Reaction, "id">) {
+  return apiRequest<{ reaction: Reaction }>("/admin/reactions", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
+  });
+}
+
+export function updateReaction(id: string, input: Partial<Omit<Reaction, "id">>) {
+  return apiRequest<{ reaction: Reaction }>(`/admin/reactions/${id}`, {
+    method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
   });
 }
 
