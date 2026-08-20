@@ -8,8 +8,8 @@ import { DeviceManager } from "./features/devices/DeviceManager";
 import { GroupsPanel } from "./features/groups/GroupsPanel";
 import { SocialPanel } from "./features/social/SocialPanel";
 import { MediaPanel } from "./features/media/MediaPanel";
-import { ReactionManager } from "./features/reactions/ReactionManager";
 import { PresenceMenu } from "./features/status/PresenceMenu";
+import { AdminPanel } from "./features/admin/AdminPanel";
 
 const authQueryKey = ["auth", "me"] as const;
 
@@ -56,7 +56,7 @@ export function App() {
         <Route path="status" element={<Navigate to="/" replace />} />
         <Route path="groups" element={<GroupsPanel user={user} />} />
         <Route path="profile" element={<ProfileSettings user={user} />} />
-        {user.isAdmin && <Route path="admin/reactions" element={<ReactionManager />} />}
+        {user.isAdmin && <Route path="admin/reactions" element={<AdminPanel />} />}
         <Route path="devices" element={<Navigate to="/profile" replace />} />
         {user.isAdmin && <Route path="reactions" element={<Navigate to="/admin/reactions" replace />} />}
         <Route path="interactions" element={<Navigate to="/" replace />} />
