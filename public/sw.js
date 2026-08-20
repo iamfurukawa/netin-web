@@ -1,4 +1,4 @@
-const cacheName = "netin-shell-v1";
+const cacheName = "glados-shell-v1";
 const appShell = ["/", "/manifest.webmanifest", "/netin-icon.svg"];
 
 self.addEventListener("install", (event) => {

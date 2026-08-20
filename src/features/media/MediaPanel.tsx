@@ -170,7 +170,7 @@ export function MediaPanel({ userId }: { userId: string }) {
 
   return <section className="media-card" aria-labelledby="media-title">
     <div className="section-heading"><div><p className="eyebrow">MÍDIA</p><h2 id="media-title">Enviar mídia</h2></div></div>
-    <p className="muted">A foto, GIF ou vídeo curto sem áudio (até 8 segundos) é ajustado para a tela do Netin e enviado automaticamente aos dispositivos elegíveis.</p>
+    <p className="muted">A foto, GIF ou vídeo curto sem áudio (até 8 segundos) é ajustado para a tela do GLaDOS e enviado automaticamente aos dispositivos elegíveis.</p>
     {joinedGroups.length === 0 ? <p className="empty-state">Inscreva-se em um grupo para enviar mídia.</p> : <form className="media-form" onSubmit={submit}>
       <div className="media-source" role="group" aria-label="Origem da mídia">
         <button className={source === "record" ? "button--secondary media-source__active" : "button--secondary"} type="button" onClick={() => selectSource("record")}>Gravar vídeo</button>

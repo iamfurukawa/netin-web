@@ -14,7 +14,7 @@ function messageFor(error: unknown) {
 }
 
 function deviceName(device: Device) {
-  return device.hardwareTarget === "esp32-2432s024" ? "Netin" : device.hardwareTarget;
+  return device.hardwareTarget === "esp32-2432s024" ? "GLaDOS" : device.hardwareTarget;
 }
 
 export function DeviceManager() {
@@ -40,7 +40,7 @@ export function DeviceManager() {
   }
 
   return <section className="devices-card" aria-labelledby="devices-title">
-    <div className="section-heading"><div><p className="eyebrow">DISPOSITIVOS</p><h2 id="devices-title">Seus Netins</h2></div></div>
+    <div className="section-heading"><div><p className="eyebrow">DISPOSITIVOS</p><h2 id="devices-title">Seus GLaDOS</h2></div></div>
     <p className="muted">Na placa, abra Ajustes → Dispositivo para gerar um código temporário.</p>
     <form className="pair-form" onSubmit={submit}>
       <label htmlFor="pairing-code">Código de pareamento</label>
@@ -52,7 +52,7 @@ export function DeviceManager() {
     </form>
     {devices.isPending && <p className="muted">Carregando dispositivos...</p>}
     {devices.error && <p className="form-error" role="alert">Não foi possível carregar seus dispositivos.</p>}
-    {devices.data?.devices.length === 0 && <p className="empty-state">Nenhum Netin pareado ainda.</p>}
+    {devices.data?.devices.length === 0 && <p className="empty-state">Nenhum GLaDOS pareado ainda.</p>}
     <ul className="device-list">
       {devices.data?.devices.map((device) => <li key={device.id} className="device-item">
         <span className={`device-indicator device-indicator--${deviceState(device)}`} aria-hidden="true" />

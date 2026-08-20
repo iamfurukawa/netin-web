@@ -19,7 +19,7 @@ export function ReceivingPreferences() {
   return <section className="social-preferences" aria-labelledby="social-preferences-title">
     <p className="eyebrow">RECEBIMENTO</p><h3 id="social-preferences-title">Interações na placa</h3>
     <label className="toggle-row"><input type="checkbox" checked={preferences.data?.muted ?? false} disabled={preferences.isPending || change.isPending} onChange={(event) => change.mutate(event.target.checked)} /><span>Não perturbe</span></label>
-    <p className="muted">Enquanto estiver ativado, novas reações, mensagens e cutucadas não serão entregues aos seus Netins.</p>
+    <p className="muted">Enquanto estiver ativado, novas reações, mensagens e cutucadas não serão entregues aos seus GLaDOS.</p>
     {preferences.error || change.error ? <p className="form-error" role="alert">{messageFor(preferences.error ?? change.error)}</p> : null}
   </section>;
 }

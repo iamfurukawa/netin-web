@@ -35,16 +35,16 @@ export function App() {
 
   return <BrowserRouter><main className="page">
     <header className="header">
-      <Link className="brand" to="/" aria-label="Netin">NETIN</Link>
+      <Link className="brand" to="/" aria-label="GLaDOS">GLaDOS</Link>
       <div className="header-actions">{user && <PresenceMenu />}<span className={`connection connection--${apiState}`}><span aria-hidden="true" className="connection__dot" />{connectionLabel}</span></div>
     </header>
 
-    {session.isPending && <section className="loading-card"><p className="eyebrow">NETIN</p><h1>Preparando seu painel...</h1></section>}
+    {session.isPending && <section className="loading-card"><p className="eyebrow">GLADOS</p><h1>Preparando seu painel...</h1></section>}
     {!session.isPending && !user && <>
       <section className="hero" aria-labelledby="welcome-title">
         <p className="eyebrow">SEU PAINEL PESSOAL</p>
         <h1 id="welcome-title">Seu status, onde você estiver.</h1>
-        <p className="lead">Entre para conectar seu Netin à conta e manter status e dispositivos sincronizados.</p>
+        <p className="lead">Entre para conectar seu GLaDOS à conta e manter status e dispositivos sincronizados.</p>
       </section>
       {apiState === "offline" && <p className="notice" role="status">Não foi possível alcançar a API. Verifique sua conexão e tente novamente.</p>}
       <AuthForm onAuthenticated={(authenticatedUser) => queryClient.setQueryData(authQueryKey, { user: authenticatedUser })} />
@@ -68,7 +68,7 @@ export function App() {
 
 function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () => void; logoutError: Error | null }) {
   return <section className="dashboard" aria-labelledby="dashboard-title">
-    <div className="dashboard-heading"><div><p className="eyebrow">NETIN</p><h1 id="dashboard-title">Olá, {user.displayName}.</h1></div><button className="button--secondary" type="button" onClick={onLogout}>Sair</button></div>
+    <div className="dashboard-heading"><div><p className="eyebrow">GLADOS</p><h1 id="dashboard-title">Olá, {user.displayName}.</h1></div><button className="button--secondary" type="button" onClick={onLogout}>Sair</button></div>
     {logoutError && <p className="notice" role="alert">Não foi possível encerrar a sessão. Tente novamente.</p>}
     <nav className="dashboard-nav" aria-label="Navegação do painel">
       <NavLink end className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/">Início</NavLink>

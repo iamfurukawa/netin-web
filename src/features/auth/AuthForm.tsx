@@ -51,7 +51,7 @@ export function AuthForm({ onAuthenticated }: Props) {
       <div className="auth-card__body">
         <p className="eyebrow">{isRegister ? "PRIMEIRO ACESSO" : "BEM-VINDO DE VOLTA"}</p>
         <h2 id="auth-title">{isRegister ? "Crie sua conta" : "Entre na sua conta"}</h2>
-        <p className="muted">{isRegister ? "Use seu e-mail para conectar seus dispositivos Netin." : "Acesse seus dispositivos e status sincronizados."}</p>
+        <p className="muted">{isRegister ? "Use seu e-mail para conectar seus dispositivos GLaDOS." : "Acesse seus dispositivos e status sincronizados."}</p>
         <form onSubmit={submit}>
           {isRegister && <label>Nome de exibição<input value={displayName} onChange={(event) => setDisplayName(event.target.value)} maxLength={24} required autoComplete="name" /></label>}
           <label>E-mail<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoComplete="email" /></label>

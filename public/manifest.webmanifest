@@ -1,7 +1,7 @@
 {
-  "name": "Netin",
-  "short_name": "Netin",
-  "description": "Seu painel pessoal do Netin.",
+  "name": "GLaDOS",
+  "short_name": "GLaDOS",
+  "description": "Seu painel pessoal do GLaDOS.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
