@@ -8,8 +8,8 @@ import { DeviceManager } from "./features/devices/DeviceManager";
 import { GroupsPanel } from "./features/groups/GroupsPanel";
 import { SocialPanel } from "./features/social/SocialPanel";
 import { MediaPanel } from "./features/media/MediaPanel";
-import { StatusPanel } from "./features/status/StatusPanel";
 import { ReactionManager } from "./features/reactions/ReactionManager";
+import { PresenceMenu } from "./features/status/PresenceMenu";
 
 const authQueryKey = ["auth", "me"] as const;
 
@@ -36,7 +36,7 @@ export function App() {
   return <BrowserRouter><main className="page">
     <header className="header">
       <Link className="brand" to="/" aria-label="Netin">NETIN</Link>
-      <span className={`connection connection--${apiState}`}><span aria-hidden="true" className="connection__dot" />{connectionLabel}</span>
+      <div className="header-actions">{user && <PresenceMenu />}<span className={`connection connection--${apiState}`}><span aria-hidden="true" className="connection__dot" />{connectionLabel}</span></div>
     </header>
 
     {session.isPending && <section className="loading-card"><p className="eyebrow">NETIN</p><h1>Preparando seu painel...</h1></section>}
@@ -53,7 +53,7 @@ export function App() {
       <Route element={<Dashboard user={user} onLogout={() => logoutMutation.mutate()} logoutError={logoutMutation.error} />}>
         <Route index element={<SocialPanel userId={user.id} />} />
         <Route path="media" element={<MediaPanel userId={user.id} />} />
-        <Route path="status" element={<StatusPanel />} />
+        <Route path="status" element={<Navigate to="/" replace />} />
         <Route path="groups" element={<GroupsPanel user={user} />} />
         <Route path="profile" element={<ProfileSettings user={user} />} />
         <Route path="devices" element={<Navigate to="/profile" replace />} />
@@ -72,7 +72,6 @@ function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () =
     <nav className="dashboard-nav" aria-label="Navegação do painel">
       <NavLink end className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/">Início</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/media">Mídia</NavLink>
-      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/status">Status</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/groups">Grupos</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/profile">Perfil</NavLink>
     </nav>
