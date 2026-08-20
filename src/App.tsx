@@ -56,8 +56,9 @@ export function App() {
         <Route path="status" element={<Navigate to="/" replace />} />
         <Route path="groups" element={<GroupsPanel user={user} />} />
         <Route path="profile" element={<ProfileSettings user={user} />} />
+        {user.isAdmin && <Route path="admin/reactions" element={<ReactionManager />} />}
         <Route path="devices" element={<Navigate to="/profile" replace />} />
-        {user.isAdmin && <Route path="reactions" element={<Navigate to="/profile" replace />} />}
+        {user.isAdmin && <Route path="reactions" element={<Navigate to="/admin/reactions" replace />} />}
         <Route path="interactions" element={<Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
@@ -74,6 +75,7 @@ function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () =
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/media">Mídia</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/groups">Grupos</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/profile">Perfil</NavLink>
+      {user.isAdmin && <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/admin/reactions">Admin</NavLink>}
     </nav>
     <Outlet />
   </section>;
@@ -99,6 +101,5 @@ function ProfileSettings({ user }: { user: User }) {
       {profileMutation.error && <p className="form-error" role="alert">Não foi possível salvar o perfil.</p>}
     </form>
     <DeviceManager />
-    {user.isAdmin && <ReactionManager />}
   </section>;
 }

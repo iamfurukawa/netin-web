@@ -13,6 +13,7 @@ function messageFor(error: unknown) {
 
 export function SocialPanel({ userId }: { userId: string }) {
   const [selectedGroupId, setSelectedGroupId] = useState("");
+  const [action, setAction] = useState<"reaction" | "message" | "poke">("reaction");
   const [message, setMessage] = useState("");
   const groups = useQuery({ queryKey: ["groups"], queryFn: listGroups });
   const reactions = useQuery({ queryKey: ["reactions"], queryFn: listReactions });
@@ -52,8 +53,13 @@ export function SocialPanel({ userId }: { userId: string }) {
       <label className="social-field" htmlFor="interaction-group">Grupo
         <select id="interaction-group" value={selectedGroupId} onChange={(event) => setSelectedGroupId(event.target.value)}>{joinedGroups.map((group: Group) => <option key={group.id} value={group.id}>{group.name}</option>)}</select>
       </label>
-      <div className="reaction-list" aria-label="Escolher reação">{reactions.data?.reactions.map((reaction) => <button key={reaction.id} className="reaction-button" type="button" title={reaction.name} aria-label={reaction.name} disabled={interaction.isPending} onClick={() => send({ type: "reaction", reactionId: reaction.id })}><img src={apiUrl(reaction.assetPath)} alt="" /></button>)}</div>
-      <div className="poke-target">
+      <div className="media-source" role="group" aria-label="Tipo de interação">
+        <button className={action === "reaction" ? "button--secondary media-source__active" : "button--secondary"} type="button" onClick={() => setAction("reaction")}>Reagir</button>
+        <button className={action === "message" ? "button--secondary media-source__active" : "button--secondary"} type="button" onClick={() => setAction("message")}>Mensagem</button>
+        <button className={action === "poke" ? "button--secondary media-source__active" : "button--secondary"} type="button" onClick={() => setAction("poke")}>Cutucar</button>
+      </div>
+      {action === "reaction" && <div className="reaction-list" aria-label="Escolher reação">{reactions.data?.reactions.map((reaction) => <button key={reaction.id} className="reaction-button" type="button" title={reaction.name} aria-label={reaction.name} disabled={interaction.isPending} onClick={() => send({ type: "reaction", reactionId: reaction.id })}><img src={apiUrl(reaction.assetPath)} alt="" /></button>)}</div>}
+      {action === "poke" && <div className="poke-target">
         <label className="social-field" htmlFor="poke-target">Destino da cutucada
           <select id="poke-target" value={selectedPokeTargetId} onChange={(event) => setSelectedPokeTargetId(event.target.value)} disabled={members.isPending}>
             <option value="">Todo o grupo</option>
@@ -63,13 +69,14 @@ export function SocialPanel({ userId }: { userId: string }) {
         <button className="button--secondary" type="button" disabled={interaction.isPending} onClick={() => send({ type: "poke", targetUserId: selectedPokeTargetId || undefined })}>
           {interaction.isPending ? "Enviando..." : "Cutucar"}
         </button>
-      </div>
-      <form className="message-form" onSubmit={submitMessage}>
+      </div>}
+      {action === "message" && <form className="message-form" onSubmit={submitMessage}>
         <label className="social-field" htmlFor="group-message">Mensagem curta
           <textarea id="group-message" value={message} onChange={(event) => setMessage(event.target.value)} maxLength={160} placeholder="Escreva uma mensagem" required />
         </label>
         <div className="message-form__footer"><span>{message.length}/160</span><button className="button--primary" type="submit" disabled={interaction.isPending || !message.trim()}>{interaction.isPending ? "Enviando..." : "Enviar"}</button></div>
       </form>
+      }
     </>}
     {interaction.error && <p className="form-error" role="alert">{messageFor(interaction.error)}</p>}
     {interaction.isSuccess && <p className="social-success" role="status">Interação enviada para {interaction.data.recipients === 1 ? "1 dispositivo" : `${interaction.data.recipients} dispositivos`}.</p>}
