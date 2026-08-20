@@ -9,7 +9,6 @@ export const statusOptions = [
   ["in_call", "Em chamada", "#55b9ef"],
   ["gaming", "Jogando", "#5c8dff"],
   ["sleeping", "Dormindo", "#4a7a5a"],
-  ["do_not_disturb", "Não perturbe", "#73727d"],
 ] as const;
 
 export type PresenceStatus = (typeof statusOptions)[number][0];

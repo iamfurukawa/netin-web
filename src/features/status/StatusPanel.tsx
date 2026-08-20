@@ -13,18 +13,16 @@ export function StatusPanel() {
     onSuccess: (data) => queryClient.setQueryData(statusQueryKey, { status: data.status }),
   });
   const selected = current.data?.status?.status;
+  const selectedOption = statusOptions.find(([status]) => status === selected) ?? statusOptions[0];
 
   return <section className="status-card" aria-labelledby="status-title">
     <div className="section-heading"><div><p className="eyebrow">PRESENÇA</p><h2 id="status-title">Status e recebimento</h2></div></div>
     <p className="muted">Escolha como você quer aparecer no seu Netin.</p>
     {current.isPending && <p className="muted">Carregando status...</p>}
     {current.error && <p className="form-error" role="alert">Não foi possível carregar seu status.</p>}
-    <div className="status-options" aria-label="Escolher status">
-      {statusOptions.map(([status, label, color]) => <button key={status} className={selected === status ? "status-option status-option--selected" : "status-option"} type="button" disabled={change.isPending} onClick={() => change.mutate(status)}>
-        <span className="status-option__dot" style={{ backgroundColor: color }} aria-hidden="true" />
-        <span>{label}</span>
-      </button>)}
-    </div>
+    <label className="status-selector">Status
+      <span className="status-selector__control"><span className="status-option__dot" style={{ backgroundColor: selectedOption[2] }} aria-hidden="true" /><select value={selectedOption[0]} disabled={current.isPending || change.isPending} onChange={(event) => change.mutate(event.target.value as typeof selectedOption[0])}>{statusOptions.map(([status, label]) => <option key={status} value={status}>{label}</option>)}</select></span>
+    </label>
     {change.error && <p className="form-error" role="alert">Não foi possível atualizar seu status.</p>}
     {change.isSuccess && <p className="social-success" role="status">{change.data.delivery === "queued" ? "Status sincronizado e enviado aos dispositivos." : "Status salvo. A entrega ao Netin será retomada quando o canal MQTT estiver disponível."}</p>}
     <ReceivingPreferences />
