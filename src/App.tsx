@@ -53,10 +53,11 @@ export function App() {
       <Route element={<Dashboard user={user} onLogout={() => logoutMutation.mutate()} logoutError={logoutMutation.error} />}>
         <Route index element={<SocialPanel userId={user.id} />} />
         <Route path="media" element={<MediaPanel userId={user.id} />} />
-        <Route path="status" element={<StatusPanel />} />
-        <Route path="devices" element={<DeviceManager />} />
         <Route path="groups" element={<GroupsPanel user={user} />} />
-        {user.isAdmin && <Route path="reactions" element={<ReactionManager />} />}
+        <Route path="profile" element={<ProfileSettings user={user} />} />
+        <Route path="status" element={<Navigate to="/profile" replace />} />
+        <Route path="devices" element={<Navigate to="/profile" replace />} />
+        {user.isAdmin && <Route path="reactions" element={<Navigate to="/profile" replace />} />}
         <Route path="interactions" element={<Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
@@ -65,13 +66,27 @@ export function App() {
 }
 
 function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () => void; logoutError: Error | null }) {
+  return <section className="dashboard" aria-labelledby="dashboard-title">
+    <div className="dashboard-heading"><div><p className="eyebrow">NETIN</p><h1 id="dashboard-title">Olá, {user.displayName}.</h1></div><button className="button--secondary" type="button" onClick={onLogout}>Sair</button></div>
+    {logoutError && <p className="notice" role="alert">Não foi possível encerrar a sessão. Tente novamente.</p>}
+    <nav className="dashboard-nav" aria-label="Navegação do painel">
+      <NavLink end className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/">Início</NavLink>
+      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/media">Mídia</NavLink>
+      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/groups">Grupos</NavLink>
+      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/profile">Perfil</NavLink>
+    </nav>
+    <Outlet />
+  </section>;
+}
+
+function ProfileSettings({ user }: { user: User }) {
   const queryClient = useQueryClient();
   const profileMutation = useMutation({
     mutationFn: updateProfile,
     onSuccess: ({ user: updated }) => queryClient.setQueryData(authQueryKey, { user: updated }),
   });
-  return <section className="dashboard" aria-labelledby="dashboard-title">
-    <div className="dashboard-heading"><div><p className="eyebrow">SUA CONTA</p><h1 id="dashboard-title">Olá, {user.displayName}.</h1></div><button className="button--secondary" type="button" onClick={onLogout}>Sair</button></div>
+  return <section className="profile-settings" aria-labelledby="profile-title">
+    <div className="section-heading"><div><p className="eyebrow">PERFIL</p><h2 id="profile-title">Sua conta</h2></div></div>
     <section className="profile-card"><span className="profile-swatch" style={{ backgroundColor: user.color ?? "#7560f5" }} aria-hidden="true" /><div><h2>{user.displayName}</h2><p className="muted">{user.email}</p></div></section>
     <form className="profile-editor" onSubmit={(event) => {
       event.preventDefault();
@@ -83,15 +98,8 @@ function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () =
       <button className="button--secondary" type="submit" disabled={profileMutation.isPending}>{profileMutation.isPending ? "Salvando..." : "Salvar perfil"}</button>
       {profileMutation.error && <p className="form-error" role="alert">Não foi possível salvar o perfil.</p>}
     </form>
-    {logoutError && <p className="notice" role="alert">Não foi possível encerrar a sessão. Tente novamente.</p>}
-    <nav className="dashboard-nav" aria-label="Navegação do painel">
-      <NavLink end className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/">Início</NavLink>
-      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/media">Mídia</NavLink>
-      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/status">Status</NavLink>
-      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/devices">Dispositivos</NavLink>
-      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/groups">Grupos</NavLink>
-      {user.isAdmin && <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/reactions">Reações</NavLink>}
-    </nav>
-    <Outlet />
+    <StatusPanel />
+    <DeviceManager />
+    {user.isAdmin && <ReactionManager />}
   </section>;
 }

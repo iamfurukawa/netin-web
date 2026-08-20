@@ -21,7 +21,7 @@ function errorMessage(error: unknown) {
 
 export function MediaPanel({ userId }: { userId: string }) {
   const [file, setFile] = useState<File | null>(null);
-  const [source, setSource] = useState<"file" | "record" | "giphy">("file");
+  const [source, setSource] = useState<"file" | "record" | "giphy">("record");
   const [giphyQuery, setGiphyQuery] = useState("");
   const [selectedGiphy, setSelectedGiphy] = useState<GiphyGif | null>(null);
   const [selectedGroupId, setSelectedGroupId] = useState("");
@@ -173,9 +173,9 @@ export function MediaPanel({ userId }: { userId: string }) {
     <p className="muted">A foto, GIF ou vídeo curto sem áudio (até 8 segundos) é ajustado para a tela do Netin e enviado automaticamente aos dispositivos elegíveis.</p>
     {joinedGroups.length === 0 ? <p className="empty-state">Inscreva-se em um grupo para enviar mídia.</p> : <form className="media-form" onSubmit={submit}>
       <div className="media-source" role="group" aria-label="Origem da mídia">
-        <button className={source === "file" ? "button--secondary media-source__active" : "button--secondary"} type="button" onClick={() => selectSource("file")}>Arquivo</button>
         <button className={source === "record" ? "button--secondary media-source__active" : "button--secondary"} type="button" onClick={() => selectSource("record")}>Gravar vídeo</button>
         {giphyAvailable() && <button className={source === "giphy" ? "button--secondary media-source__active" : "button--secondary"} type="button" onClick={() => selectSource("giphy")}>Buscar GIF</button>}
+        <button className={source === "file" ? "button--secondary media-source__active" : "button--secondary"} type="button" onClick={() => selectSource("file")}>Arquivo</button>
       </div>
       {source === "file" && <>
         <label className="social-field" htmlFor="media-file">Foto, GIF ou vídeo curto
