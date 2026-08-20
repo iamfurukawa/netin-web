@@ -53,9 +53,9 @@ export function App() {
       <Route element={<Dashboard user={user} onLogout={() => logoutMutation.mutate()} logoutError={logoutMutation.error} />}>
         <Route index element={<SocialPanel userId={user.id} />} />
         <Route path="media" element={<MediaPanel userId={user.id} />} />
+        <Route path="status" element={<StatusPanel />} />
         <Route path="groups" element={<GroupsPanel user={user} />} />
         <Route path="profile" element={<ProfileSettings user={user} />} />
-        <Route path="status" element={<Navigate to="/profile" replace />} />
         <Route path="devices" element={<Navigate to="/profile" replace />} />
         {user.isAdmin && <Route path="reactions" element={<Navigate to="/profile" replace />} />}
         <Route path="interactions" element={<Navigate to="/" replace />} />
@@ -72,6 +72,7 @@ function Dashboard({ user, onLogout, logoutError }: { user: User; onLogout: () =
     <nav className="dashboard-nav" aria-label="Navegação do painel">
       <NavLink end className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/">Início</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/media">Mídia</NavLink>
+      <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/status">Status</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/groups">Grupos</NavLink>
       <NavLink className={({ isActive }) => isActive ? "dashboard-nav__item dashboard-nav__item--active" : "dashboard-nav__item"} to="/profile">Perfil</NavLink>
     </nav>
@@ -98,7 +99,6 @@ function ProfileSettings({ user }: { user: User }) {
       <button className="button--secondary" type="submit" disabled={profileMutation.isPending}>{profileMutation.isPending ? "Salvando..." : "Salvar perfil"}</button>
       {profileMutation.error && <p className="form-error" role="alert">Não foi possível salvar o perfil.</p>}
     </form>
-    <StatusPanel />
     <DeviceManager />
     {user.isAdmin && <ReactionManager />}
   </section>;

@@ -211,6 +211,6 @@ export function MediaPanel({ userId }: { userId: string }) {
       <button className="button--primary" type="submit" disabled={(source === "giphy" ? !selectedGiphy : !file) || !selectedGroupId || Boolean(validationError) || pending}>{pending ? "Preparando envio..." : targetUserId ? "Enviar para pessoa" : "Enviar para todos"}</button>
     </form>}
     {error && <p className="form-error" role="alert">{errorMessage(error)}</p>}
-    {delivery.isSuccess && <p className="social-success" role="status">Mídia aceita. A entrega foi colocada na fila para {delivery.data.recipients} dispositivo(s).</p>}
+    {delivery.isSuccess && <p className="social-success" role="status">{delivery.data.recipients === 0 ? "Mídia preparada, mas não há dispositivos elegíveis neste envio." : delivery.data.recipients === 1 ? "Mídia enviada para 1 dispositivo." : `Mídia enviada para ${delivery.data.recipients} dispositivos.`}</p>}
   </section>;
 }

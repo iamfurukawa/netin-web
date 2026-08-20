@@ -47,7 +47,7 @@ export function updateReactionAsset(id: string, asset: File) {
 }
 
 export function sendGroupInteraction(groupId: string, interaction: InteractionInput) {
-  return apiRequest<{ eventId: string; createdAt: string; delivery: "pending_mqtt" }>(`/groups/${groupId}/interactions`, {
+  return apiRequest<{ eventId: string; createdAt: string; recipients: number; delivery: "pending_mqtt" }>(`/groups/${groupId}/interactions`, {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(interaction),
   });
 }

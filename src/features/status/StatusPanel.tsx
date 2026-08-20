@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { statusOptions, getStatus, updateStatus } from "./status-api";
+import { ReceivingPreferences } from "../social/ReceivingPreferences";
 
 const statusQueryKey = ["status"] as const;
 
@@ -14,7 +15,7 @@ export function StatusPanel() {
   const selected = current.data?.status?.status;
 
   return <section className="status-card" aria-labelledby="status-title">
-    <div className="section-heading"><div><p className="eyebrow">PRESENÇA</p><h2 id="status-title">Seu status</h2></div></div>
+    <div className="section-heading"><div><p className="eyebrow">PRESENÇA</p><h2 id="status-title">Status e recebimento</h2></div></div>
     <p className="muted">Escolha como você quer aparecer no seu Netin.</p>
     {current.isPending && <p className="muted">Carregando status...</p>}
     {current.error && <p className="form-error" role="alert">Não foi possível carregar seu status.</p>}
@@ -26,5 +27,6 @@ export function StatusPanel() {
     </div>
     {change.error && <p className="form-error" role="alert">Não foi possível atualizar seu status.</p>}
     {change.isSuccess && <p className="social-success" role="status">{change.data.delivery === "queued" ? "Status sincronizado e enviado aos dispositivos." : "Status salvo. A entrega ao Netin será retomada quando o canal MQTT estiver disponível."}</p>}
+    <ReceivingPreferences />
   </section>;
 }

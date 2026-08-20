@@ -1,9 +1,9 @@
 import { type FormEvent, useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { apiUrl, ApiError } from "../../api/client";
 import { listGroups, listInteractionMembers, type Group } from "../groups/groups-api";
-import { getSocialPreferences, listReactions, sendGroupInteraction, setSocialPreferences, type InteractionInput } from "./social-api";
+import { listReactions, sendGroupInteraction, type InteractionInput } from "./social-api";
 
 function messageFor(error: unknown) {
   if (error instanceof ApiError && error.code === "group_membership_required") return "Você precisa estar inscrito neste grupo para enviar uma interação.";
@@ -12,11 +12,9 @@ function messageFor(error: unknown) {
 }
 
 export function SocialPanel({ userId }: { userId: string }) {
-  const queryClient = useQueryClient();
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [message, setMessage] = useState("");
   const groups = useQuery({ queryKey: ["groups"], queryFn: listGroups });
-  const preferences = useQuery({ queryKey: ["social-preferences"], queryFn: getSocialPreferences });
   const reactions = useQuery({ queryKey: ["reactions"], queryFn: listReactions });
   const joinedGroups = groups.data?.groups.filter((group) => group.joined) ?? [];
   const members = useQuery({
@@ -26,10 +24,6 @@ export function SocialPanel({ userId }: { userId: string }) {
   });
   const pokeTargets = members.data?.members.filter((member) => member.id !== userId) ?? [];
   const [selectedPokeTargetId, setSelectedPokeTargetId] = useState("");
-  const preferencesMutation = useMutation({
-    mutationFn: setSocialPreferences,
-    onSuccess: (data) => queryClient.setQueryData(["social-preferences"], data),
-  });
   const interaction = useMutation({ mutationFn: ({ groupId, input }: { groupId: string; input: InteractionInput }) => sendGroupInteraction(groupId, input) });
 
   useEffect(() => {
@@ -37,7 +31,7 @@ export function SocialPanel({ userId }: { userId: string }) {
   }, [joinedGroups, selectedGroupId]);
 
   useEffect(() => {
-    if (!selectedPokeTargetId || !pokeTargets.some((member) => member.id === selectedPokeTargetId)) setSelectedPokeTargetId(pokeTargets[0]?.id ?? "");
+    if (selectedPokeTargetId && !pokeTargets.some((member) => member.id === selectedPokeTargetId)) setSelectedPokeTargetId("");
   }, [pokeTargets, selectedPokeTargetId]);
 
   function send(input: InteractionInput) {
@@ -53,21 +47,21 @@ export function SocialPanel({ userId }: { userId: string }) {
 
   return <section className="social-card" aria-labelledby="social-title">
     <div className="section-heading"><div><p className="eyebrow">INTERAÇÕES</p><h2 id="social-title">Enviar ao grupo</h2></div></div>
-    <p className="muted">O evento é validado e registrado agora. A entrega na placa será ativada junto com o canal MQTT.</p>
+    <p className="muted">Escolha uma reação, mande uma mensagem curta ou chame a atenção de alguém.</p>
     {joinedGroups.length === 0 ? <p className="empty-state">Inscreva-se em um grupo para enviar interações.</p> : <>
       <label className="social-field" htmlFor="interaction-group">Grupo
         <select id="interaction-group" value={selectedGroupId} onChange={(event) => setSelectedGroupId(event.target.value)}>{joinedGroups.map((group: Group) => <option key={group.id} value={group.id}>{group.name}</option>)}</select>
       </label>
       <div className="reaction-list" aria-label="Escolher reação">{reactions.data?.reactions.map((reaction) => <button key={reaction.id} className="reaction-button" type="button" title={reaction.name} aria-label={reaction.name} disabled={interaction.isPending} onClick={() => send({ type: "reaction", reactionId: reaction.id })}><img src={apiUrl(reaction.assetPath)} alt="" /></button>)}</div>
-      <button className="button--secondary" type="button" disabled={interaction.isPending} onClick={() => send({ type: "poke" })}>{interaction.isPending ? "Enviando..." : "Cutucar grupo"}</button>
       <div className="poke-target">
-        <label className="social-field" htmlFor="poke-target">Cutucar uma pessoa
-          <select id="poke-target" value={selectedPokeTargetId} onChange={(event) => setSelectedPokeTargetId(event.target.value)} disabled={members.isPending || pokeTargets.length === 0}>
-            {pokeTargets.length === 0 ? <option value="">Nenhuma outra pessoa no grupo</option> : pokeTargets.map((member) => <option key={member.id} value={member.id}>{member.displayName}</option>)}
+        <label className="social-field" htmlFor="poke-target">Destino da cutucada
+          <select id="poke-target" value={selectedPokeTargetId} onChange={(event) => setSelectedPokeTargetId(event.target.value)} disabled={members.isPending}>
+            <option value="">Todo o grupo</option>
+            {pokeTargets.map((member) => <option key={member.id} value={member.id}>{member.displayName}</option>)}
           </select>
         </label>
-        <button className="button--secondary" type="button" disabled={interaction.isPending || !selectedPokeTargetId} onClick={() => send({ type: "poke", targetUserId: selectedPokeTargetId })}>
-          {interaction.isPending ? "Enviando..." : "Cutucar pessoa"}
+        <button className="button--secondary" type="button" disabled={interaction.isPending} onClick={() => send({ type: "poke", targetUserId: selectedPokeTargetId || undefined })}>
+          {interaction.isPending ? "Enviando..." : "Cutucar"}
         </button>
       </div>
       <form className="message-form" onSubmit={submitMessage}>
@@ -78,13 +72,6 @@ export function SocialPanel({ userId }: { userId: string }) {
       </form>
     </>}
     {interaction.error && <p className="form-error" role="alert">{messageFor(interaction.error)}</p>}
-    {interaction.isSuccess && <p className="social-success" role="status">Interação registrada. A entrega para dispositivos depende do MQTT.</p>}
-
-    <section className="social-preferences" aria-labelledby="social-preferences-title">
-      <p className="eyebrow">PREFERÊNCIAS</p><h3 id="social-preferences-title">Recebimento</h3>
-      <label className="toggle-row"><input type="checkbox" checked={preferences.data?.muted ?? false} disabled={preferences.isPending || preferencesMutation.isPending} onChange={(event) => preferencesMutation.mutate(event.target.checked)} /><span>Silenciar interações recebidas</span></label>
-      <p className="muted">Quando ativado, o servidor não criará novas entregas para os seus Netins.</p>
-      {preferences.error || preferencesMutation.error ? <p className="form-error" role="alert">{messageFor(preferences.error ?? preferencesMutation.error)}</p> : null}
-    </section>
+    {interaction.isSuccess && <p className="social-success" role="status">Interação enviada para {interaction.data.recipients === 1 ? "1 dispositivo" : `${interaction.data.recipients} dispositivos`}.</p>}
   </section>;
 }
