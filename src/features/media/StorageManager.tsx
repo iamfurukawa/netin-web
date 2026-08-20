@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { apiRequest } from "../../api/client";
+import { useState } from "react";
+
+import { apiRequest, apiUrl } from "../../api/client";
 
 type StorageAsset = { id: string; ownerName: string; mimeType: string; sizeBytes: number; processingState: string; createdAt: string; expiresAt: string; expired: boolean };
 type StorageOverview = { count: number; totalBytes: number; assets: StorageAsset[] };
@@ -23,6 +25,7 @@ function purgeExpired() {
 
 export function StorageManager() {
   const queryClient = useQueryClient();
+  const [preview, setPreview] = useState<StorageAsset | null>(null);
   const storage = useQuery({ queryKey, queryFn: listStorage });
   const purge = useMutation({ mutationFn: purgeExpired, onSuccess: () => queryClient.invalidateQueries({ queryKey }) });
 
@@ -32,6 +35,7 @@ export function StorageManager() {
     {purge.isSuccess && <p className="social-success" role="status">{purge.data.removed === 0 ? "Nenhuma mídia expirada para limpar." : `${purge.data.removed} mídia(s) removida(s), liberando ${formatBytes(purge.data.reclaimedBytes)}.`}</p>}
     {storage.isPending && <p className="muted">Carregando inventário...</p>}
     {storage.error || purge.error ? <p className="form-error" role="alert">Não foi possível consultar ou limpar o armazenamento.</p> : null}
-    <ul className="storage-list">{storage.data?.assets.map((asset) => <li key={asset.id}><div><strong>{asset.mimeType === "image/gif" ? "GIF / vídeo" : "Imagem"}</strong><span>{asset.ownerName} · {formatBytes(asset.sizeBytes)} · {new Date(asset.createdAt).toLocaleDateString("pt-BR")}</span></div><small className={asset.expired ? "storage-expired" : ""}>{asset.expired ? "Expirada" : `Expira em ${new Date(asset.expiresAt).toLocaleDateString("pt-BR")}`}</small></li>)}</ul>
+    <ul className="storage-list">{storage.data?.assets.map((asset) => <li key={asset.id}><button className="storage-item" type="button" onClick={() => setPreview(asset)}><div><strong>{asset.mimeType === "image/gif" ? "GIF / vídeo" : "Imagem"}</strong><span>{asset.ownerName} · {formatBytes(asset.sizeBytes)} · {new Date(asset.createdAt).toLocaleDateString("pt-BR")}</span></div><small className={asset.expired ? "storage-expired" : ""}>{asset.expired ? "Expirada" : `Expira em ${new Date(asset.expiresAt).toLocaleDateString("pt-BR")}`}</small></button></li>)}</ul>
+    {preview && <div className="media-preview" role="dialog" aria-modal="true" aria-label="Prévia da mídia" onClick={() => setPreview(null)}><div className="media-preview__content" onClick={(event) => event.stopPropagation()}><img src={apiUrl(`/admin/storage/media/${preview.id}/preview`)} alt={`Mídia enviada por ${preview.ownerName}`} /><div><span>{preview.ownerName} · {formatBytes(preview.sizeBytes)}</span><button className="button--secondary" type="button" onClick={() => setPreview(null)}>Fechar</button></div></div></div>}
   </section>;
 }
